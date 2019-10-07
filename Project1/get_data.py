@@ -14,8 +14,11 @@ from sklearn.model_selection import KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.utils import resample
 
+from sklearn.model_selection import KFold
 
-
+"""
+Functions used for plotting. First Franke function,plot function for franke is defined. Various functions which gets data.
+"""
 
 
 def Franke_Func(x,y, n=20):   #f(x,y) #France function
@@ -23,35 +26,14 @@ def Franke_Func(x,y, n=20):   #f(x,y) #France function
     term2 = ( 0.75 * np.exp( -((9*x+1)**2 / 49) - ((9*y+1)**2 / 10 )) )
     term3 = ( 0.5 * np.exp( -((9*x-7)**2 / 4 ) - ((9*y-3)**2 / 4)) )
     term4 = -( 0.2 * np.exp( -(9*x-4)**2 - (9*y-7)**2 ) )
-    #noise = np.random.normal(0, 0, n)
-    return (term1 + term2 + term3 + term4)# + noise)
 
-#Defining x, y and z
-#x = np.arange(0, 1, 0.05)
-#y = np.arange(0, 1, 0.05)
-#x,y = np.meshgrid(x,y)
-x = np.linspace(0,1,20)
-y = np.linspace(0,1,20)
-noise = 0.1*np.random.randn(20,1)  #(mu=0, sigma^2=1)
-z = Franke_Func(x,y) + noise #f(x,y)+epsilon
-
-z_flat = np.ravel(z)   #1D array 20x20 long
+    return (term1 + term2 + term3 + term4)
 
 
-"""
-##making design matrix
-n = len(x); p = 6
-X = np.zeros((n,p))
-X[:,0] = 1
-X[:,1] = x
-X[:,2] = y
-X[:,3] = (x**2)
-X[:,4] = (y**2)
-X[:,5] = (x*y)
-"""
-def plot(x,y,z, z_pred):
+def plot(x=np.arange(x=np.arange(0,1,0.05),y=np.arange(0,1,0.05,z):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
+    plt.scatter(x,y,z)
     x,y = np.meshgrid(x,y)
     surf = ax.plot_surface(x,y,z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
     ax.set_zlim(-0.10, 1.40)
@@ -60,16 +42,13 @@ def plot(x,y,z, z_pred):
 
     plt.xlabel('x')
     plt.ylabel('y')
-    #plt.zlabel('z')
 
     fig.colorbar(surf, shrink = 0.5, aspect=5, label='z')
     plt.show()
 
 
-def plot_model(data, model):
-    pass
 
-def design_matrix(x, y, deg):
+def design_matrix(x, y, deg): #copied from piaza
 
     if len(x.shape) > 1:
         x = np.ravel(x)
@@ -83,26 +62,16 @@ def design_matrix(x, y, deg):
         q = int((i)*(i+1)/2)
         for k in range(i+1):
             X[:,q+k] = x**(i-k) * y**k
-
-    return X #Not original
-
-#def design_matrix(x,y, degree):
-#    X_ = np.c_[x,y]
-#    poly = PolynomialFeatures(degree)
-#    X = poly.fit_transform(X_)
-#    return X
+    return X 
 
 
-###a) OLS
-
+#No resample, predicts errors, and plots MSE and R2 as a function of polynomial degree
 def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot_BiVar=True):
     degrees = np.arange(1,max_degree+1)
     MSE = np.zeros(max_degree)
     R2 = np.zeros(max_degree)
     bias = np.zeros(max_degree)
     Var = np.zeros(max_degree)
-    #lamb = [0.0001, 0.001, 0.01, 0.1]
-    lamb = 0.001
 
     i = 0
     beta_interval = []
@@ -111,13 +80,6 @@ def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot
         if method == 'OLS':
             mtd = Regression('OLS',X, z)
             z_pred = mtd.predict(X)
-            #beta = (mtd.OLS(get_beta=True))
-            #print(np.shape(beta))
-            #Var[i] = Error(z, z_pred).Var()
-            #print("Beta interval degree:", j, "[%.3f ,%.3f ]" %(beta+1.96*np.sqrt(Var[i]**2), (beta-1.96*np.sqrt(Var[i]**2)  )))
-            #beta_interval.append(beta+1.96*np.sqrt(Var[i]**2))
-            #(beta+1.96*np.sqrt(Var[i]**2).append(beta_interval)
-            #(beta-1.96*np.sqrt(Var[i])**2).append(beta_interval)
         elif method == 'Ridge':
             mtd = Regression('Ridge',X, z)
             z_pred = mtd.predict(X)
@@ -126,7 +88,6 @@ def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot
             z_pred = mtd.predict(X)
 
 
-        print(beta_interval)
         MSE[i]=Error(z, z_pred).MSE()
         R2[i] = Error(z, z_pred).R2()
         bias[i]=Error(z, z_pred).bias()
@@ -144,7 +105,7 @@ def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot
 
     if plot_err==True:
         figure = plt.figure() #, ax1, ax2 = plt.subplots()
-        figure.suptitle(r'R$^2$ and MSE of polydegree for OLS - no resampling')
+        figure.suptitle(r'R$^2$ and MSE of polydegree for Lasso ($\lambda=10^{-9}$) - no resampling')
         plt.subplot(2,1,1)
         plt.plot(degrees, MSE)
         plt.ylabel('MSE')
@@ -153,7 +114,7 @@ def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot
         plt.plot(degrees, R2)
         plt.ylabel(r'R$^2$')
         plt.xlabel('Polydegree')
-        plt.savefig('OLS_noRes_MSE_R2', dpi=300)
+        #plt.savefig('Ridge_noRes_MSE_R2_lamb_1e-5', dpi=300)
         plt.show()
     if plot_BiVar ==True:
         plt.plot(degrees, bias)
@@ -168,17 +129,11 @@ def getData_noRes(method, x,y,z,max_degree,Print_errors=True,plot_err=True, plot
     return MSE, R2, bias, Var #Get data from regression class only
 
 
-
-#getData_noRes('OLS', x,y,z,20, Print_errors=True, plot_err=True, plot_BiVar=True)
-
-X=design_matrix(x,y,deg=6)
-reg = Regression('OLS', X, z)
-beta = reg.OLS(get_beta=True)
-
-
-def getData_Res_bootstrap(method,n_bootstraps, x,y,z,max_degree, print=True, plot_err=True, plot_BiVar=True):
+#Bootstrap resample, predicts errors, and plots MSE as a function of polynomial degree, and bias variance tradeoff
+def getData_Res_bootstrap(method,n_bootstraps, x,y,z,max_degree, Print_Val=True, plot_err=True, plot_BiVar=True):
     degrees = np.arange(1,max_degree+1)
-    MSE = np.zeros(max_degree)
+    MSE_test = np.zeros(max_degree)
+    MSE_train = np.zeros(max_degree)
     R2 = np.zeros(max_degree)
     bias = np.zeros(max_degree)
     Var = np.zeros(max_degree)
@@ -190,57 +145,50 @@ def getData_Res_bootstrap(method,n_bootstraps, x,y,z,max_degree, print=True, plo
         X = design_matrix(x,y,j)
         if method == 'OLS':
             res = Resample('OLS', X, x, y, z)
-            MSE[i], R2[i],bias[i], Var[i] = res.Bootstrap(n_bootstraps)
+            MSE_test[i], MSE_train[i], bias[i], Var[i] = res.Bootstrap(n_bootstraps)
         elif method == 'Ridge':
-            mtd = Regression('Ridge',X, z)
-            MSE[i], R2[i],bias[i], Var[i] = res.Bootstrap(n_bootstraps)
+            res = Resample('Ridge', X, x, y, z)
+            #mtd = Regression('Ridge',X, z)
+            MSE_test[i], MSE_train[i], bias[i], Var[i] = res.Bootstrap(n_bootstraps)
+            #print(bias)
         elif method == 'Lasso':
-            mtd = Regression('Lasso', X, z)
-            MSE[i], R2[i],bias[i], Var[i] = res.Bootstrap(n_bootstraps)
+            res = Resample('Lasso', X, x, y, z)
+            #mtd = Regression('Lasso', X, z)
+            MSE_test[i], MSE_train[i],bias[i], Var[i] = res.Bootstrap(n_bootstraps)
 
 
 
-        #MSE[i]=Error(z, z_pred).MSE()
-        #R2[i] = Error(z, z_pred).R2()
-        #bias[i]=Error(z, z_pred).bias()
-        #Var[i] = Error(z, z_pred).Var()
         i += 1
-    if print == True:
+    if Print_Val == True:
         for k in range(len(degrees)):
             print("Degree: ", k)
-            print("MSE: ", MSE[k])
-            print("R2: ", R2[k])
+            print("MSE test: ", MSE_test[k])
+            print("MSE train: ", MSE_train[k])
             print("Bias: ", bias[k])
             print("Variance: ", Var[k])
 
     if plot_err==True:
         figure = plt.figure() #, ax1, ax2 = plt.subplots()
-        figure.suptitle(r'R$^2$ and MSE of polydegree for OLS - no resampling')
-        plt.subplot(2,1,1)
-        plt.plot(degrees, MSE)
+        plt.plot(degrees, MSE_test)
+        plt.plot(degrees, MSE_train)
         plt.ylabel('MSE')
-        #plt.xlabel('Polydegree')
-        plt.subplot(2,1,2)
-        plt.plot(degrees, R2)
-        plt.ylabel(r'R$^2$')
         plt.xlabel('Polydegree')
-        plt.savefig('OLS_noRes_MSE_R2', dpi=300)
+        plt.title('MSE of polydegree for Ridge ($\lambda=10^{-9}$) - Resampling')
+        plt.legend(['MSE test', 'MSE train'], loc='best')
+        plt.savefig('OLS_ResBootstrap_MSE_TrainTest', dpi=300)
         plt.show()
 
     if plot_BiVar ==True:
         plt.plot(degrees, bias)
         plt.plot(degrees, Var)
         plt.legend([r'Bias$^2$', 'Variance'], loc='best')
-        plt.title('Bias variance tradeoff with no resampling')
+        plt.title('Bias variance tradeoff with resampling for Lasso ($\lambda=10^{-5}$)')
         plt.xlabel('polydegree')
         plt.ylabel('Error')
+        #plt.savefig('OLS_biasVar_Bootstrap', dpi=300)
         plt.show()
 
-
-    return MSE, R2, bias, Var #get data from bootstrap
-#getData_Res_bootstrap('OLS', 100, x,y,z,20,print=False,plot_err=False, plot_BiVar=True)
-
-
+#Resample K fold cross validation. Plots and print the MSE as a function of polynomial degree
 def getData_Res_Kfold(method, k, x,y,z,max_degree, plot_MSE=True, Print_MSE=True):  #get data from KFold
     degrees = np.arange(1,max_degree+1)
     error = np.zeros(max_degree)
@@ -257,59 +205,88 @@ def getData_Res_Kfold(method, k, x,y,z,max_degree, plot_MSE=True, Print_MSE=True
         X = design_matrix(x,y,j)
         if method == 'OLS':
             res = Resample('OLS', X, x, y, z)
-            error[i], bias[i], variance[i], R2_test[i], R2_train[i], MSE_test[i], MSE_train[i] = res.KFold_CrossVal(k)
+            R2_test[i], R2_train[i], MSE_test[i], MSE_train[i] = res.KFold_CrossVal(k)
+        elif method == 'Ridge':
+            res = Resample('Ridge', X, x,y,z)
+            R2_test[i], R2_train[i], MSE_test[i], MSE_train[i] = res.KFold_CrossVal(k)
+        elif method == 'Lasso':
+            res = Resample('Lasso', X, x,y,z)
+            R2_test[i], R2_train[i], MSE_test[i], MSE_train[i] = res.KFold_CrossVal(k)
+        i += 1
+
     if plot_MSE == True:
-        figure = plt.figure() #, ax1, ax2 = plt.subplots()
-        figure.suptitle(r'R$^2$ and MSE of polydegree for OLS - with resampling')
-        plt.subplot(2,1,1)
+        figure = plt.figure()
         plt.plot(degrees, MSE_test)
         plt.plot(degrees, MSE_train)
+        plt.title('MSE of polydegree for Lasso ($\lambda=10^{-9}$) - with resampling')
         plt.ylabel('MSE')
         plt.legend(['MSE test data', 'MSE train data', ], loc='best')
-        #plt.xlabel('Polydegree')
-        plt.subplot(2,1,2)
-        plt.plot(degrees, R2)
-        plt.ylabel(r'R$^2$')
         plt.xlabel('Polydegree')
-        plt.legend([r'R$^2$ test data', 'R$^2$ train data' ])
-        plt.savefig('OLS_Res_MSE_R2', dpi=300)
         plt.show()
-        #plt.title('MSE of the train and test data as a function of polynomial degree')
 
 
 
+
+        print(MSE_test)
     if Print_MSE == True:
-        for i in degrees:
-            print("Degrees :", i )
-            print("MSE test data: ", MSE_test[i])
-            print("MSE train data: ", MSE_train[i])
-
-
-getData_Res_Kfold('Ridge', 5, x,y,z,5, plot_MSE=True, Print_MSE=False)
-
-
-def getData_various_lamb_res(method, x,y,z, polydegree):
-
-    lamb = np.array((0.0001, 0.001, 0.01, 0.1, 1.0))
-    X = design_matrix(x,y, degree=polydegree)
-    z_train, z_test, X_train, X_test = train_test_split(z,X,test_size=0.2)
-
-    ###doing Kfold manually
-    for lmb in lamb:
-        beta = Regression('Ridge', X_train,z_train).Ridge(lmb, get_beta=True)
-        z_test = X_test @ beta
+        for k in range(len(degrees)):
+            print("Degrees :", k )
+            print("MSE test data: ", MSE_test[k])
+            print("MSE train data: ", MSE_train[k])
+            print("R2 test data: ", R2_test[k])
+            print("R2 train data: ", R2_train[k])
 
 
 
+#An attempt to plot MSE and bias-variance tradeoff with one polynomial degree but different values of lambda. No success.
+def getData_various_lamb_res(model, x,y,z, polydegree):
+    nlambdas = 500
+    lambdas = np.logspace(-3, 5, nlambdas)
+    X = design_matrix(x,y,polydegree)
+    k= 5
+    estimated_MSE= np.zeros(nlambdas)
+    kf = KFold(n_splits=k, shuffle=True)
+    for lmb in lambdas:
+        if model == 'Ridge':
+            i=0
+            for train_index, test_index in kf.split(z):
+                z_train, z_test = z[train_index], z[test_index]
+                X_train, X_test = X[train_index], X[test_index]
+                beta = Regression('Ridge', X_train, z_train).Ridge(lmb, get_beta=True)
+                z_pred = X_test @ beta
+                estimated_MSE[i]=Error(z_test, z_pred).MSE()
+                #if np.shape(z_pred)==np.shape(z_test):
+                #    print("yeah")
+                #estimated_MSE[i] = z_test-z_pred
+                i += 1
+    #print(np.shape(estimated_MSE))
+    #print(estimated_MSE)
+    #plt.plot(np.log10(lambdas), estimated_MSE)
+ 
 
 
 
 
+#An attempt to get the beta confidence interval. No success
+def getData_betainterval(x,y,z,degree):
 
-#getData_various_lamb_res('Ridge', x,y,z, 6)
+    for j in np.arange(1,degree+1):
 
+        X= design_matrix(x,y,j)
+        betas = Regression('OLS', X,z).OLS(get_beta=True)
+        print(betas[1])
+        print(np.mean(betas[1]) )
+        #var = np.mean(betas**2)-(np.mean(betas))**2
+        #print(var)
+        #print(np.variance(betas))
 
-
-
-
+        #print(betas)
+        #beta = np.mean(np.abs(betas))
+        #beta = np.mean(betas)
+        #beta_var = (np.std(betas))# * 1.96
+        #print(beta_var)
+        #print(beta)
+        #print("degree: ", j, beta, beta+beta_var, beta-beta_var  )
+        #print(beta_var)
+        #print("degree: %d, beta: %.4f :  [%.4f , %.4f]" %(j,beta, (beta+beta_var), (beta-beta_var)), beta_var)
 
