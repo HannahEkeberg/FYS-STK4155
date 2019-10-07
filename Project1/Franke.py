@@ -8,16 +8,8 @@ random.seed(2018)
 x = np.random.random(n)
 y = np.random.random(n)
 random.seed(2018)
-#x = np.arange(0, 1, 0.05)
-#y = np.arange(0, 1, 0.05)
-#x,y = np.meshgrid(x,y)
-#x = np.linspace(0,1,100)
-#y = np.linspace(0,1,100)
-#x,y=np.meshgrid(x,y)
 noise = 0.01*np.random.randn(n)   #0.1*np.random.randn(20,1)  #(mu=0, sigma^2=1)
 z = Franke_Func(x,y) + noise #f(x,y)+epsilon
-z_flat = np.ravel(z)   #1D array 20x20 long
-
 
 
 ###Plot of MSE and R2 for OLS ridge and Lasso with no resampling
@@ -30,7 +22,7 @@ z_flat = np.ravel(z)   #1D array 20x20 long
 
 
 ### Bias variance tradeoff and MSE with train and test for bootstrap
-getData_Res_bootstrap('Lasso', 100, x,y,z,max_degree=20,Print_Val=True,plot_err=False, plot_BiVar=True)
+#getData_Res_bootstrap('Lasso', 100, x,y,z,max_degree=20,Print_Val=True,plot_err=False, plot_BiVar=True)
 
 
 ### MSE with train and test data for K Fold
