@@ -84,7 +84,7 @@ n=int(len(x_1))
 z_1=np.ravel(z)+ np.random.random(n) * 1
 
 
-# finally create the design matrix
+#finally create the design matrix
 X = CreateDesignMatrix(x_1,y_1,n=m)
 
 getData_noRes('OLS', x_1,y_1,z_1,m, Print_errors=True, plot_err=True, plot_BiVar=False)
