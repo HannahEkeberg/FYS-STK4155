@@ -1,6 +1,5 @@
-from part1 import arrange_data
-from sklearn.linear_model import LogisticRegression
 
+from sklearn.linear_model import LogisticRegression
 import numpy as np
 import matplotlib.pyplot as plt
 from random import random, seed
