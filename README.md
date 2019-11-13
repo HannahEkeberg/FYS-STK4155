@@ -6,5 +6,3 @@ Collaboration between Hannah Lovise Ekeberg and Idunn Aamnes Mostue .
 Project 1 - Regression methods
 
 Project 2 - Logistic Regression & Neural Network
-
-Project 3 - 
