@@ -7,4 +7,4 @@ Project 1 - Regression methods
 
 Project 2 - Logistic Regression & Neural Network
 
-Project 3 - work in progress..
+Project 3 - Classification algorithms
